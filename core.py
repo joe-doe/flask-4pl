@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.random as npr
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 from scipy.optimize import leastsq
 
 
@@ -21,25 +22,26 @@ def peval(x, p):
     A, B, C, D = p
     return logistic4(x, A, B, C, D)
 
+def make_4pl():
+    # Make up some data for fitting and add noise
+    # In practice, y_meas would be read in from a file
+    x = np.linspace(0, 20, 20)
+    A, B, C, D = 0.5, 2.5, 8, 7.3
+    y_true = logistic4(x, A, B, C, D)
+    y_meas = y_true + 0.2 * npr.randn(len(x))
 
-# Make up some data for fitting and add noise
-# In practice, y_meas would be read in from a file
-x = np.linspace(0, 20, 20)
-A, B, C, D = 0.5, 2.5, 8, 7.3
-y_true = logistic4(x, A, B, C, D)
-y_meas = y_true + 0.2 * npr.randn(len(x))
+    # Initial guess for parameters
+    p0 = [0, 1, 1, 1]
 
-# Initial guess for parameters
-p0 = [0, 1, 1, 1]
+    # Fit equation using least squares optimization
+    plsq = leastsq(residuals, p0, args=(y_meas, x))
 
-# Fit equation using least squares optimization
-plsq = leastsq(residuals, p0, args=(y_meas, x))
-
-# Plot results
-plt.plot(x, peval(x, plsq[0]), x, y_meas, 'o', x, y_true)
-plt.title('Least-squares 4PL fit to noisy data')
-plt.legend(['Fit', 'Noisy', 'True'], loc='upper left')
-for i, (param, actual, est) in enumerate(zip('ABCD', [A, B, C, D], plsq[0])):
-    plt.text(10, 3 - i * 0.5, '%s = %.2f, est(%s) = %.2f' % (param, actual, param, est))
-plt.show()
-plt.savefig('logistic.png')
+    # Plot results
+    plt.plot(x, peval(x, plsq[0]), x, y_meas, 'o', x, y_true)
+    plt.title('Least-squares 4PL fit to noisy data')
+    plt.legend(['Fit', 'Noisy', 'True'], loc='upper left')
+    for i, (param, actual, est) in enumerate(zip('ABCD', [A, B, C, D], plsq[0])):
+        plt.text(10, 3 - i * 0.5, '%s = %.2f, est(%s) = %.2f' % (param, actual, param, est))
+    return plt.figure()
+    # plt.show()
+    # plt.savefig('logistic.png')
