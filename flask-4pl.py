@@ -29,6 +29,6 @@ def create_figure():
     return fig
 
 
-# if __name__ == '__main__':
-#     app.run()
+if __name__ == '__main__':
+    app.run()
 
